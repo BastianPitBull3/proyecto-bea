@@ -44,6 +44,7 @@ document.addEventListener("DOMContentLoaded", function() {
   setColorSelectors();
   changeColor();
   saveTheme();
+  showList();
 
   /*** SWITCHING THROUGH DARK & LIGHT THEMES ***/
   function themeSwitch() {
@@ -177,7 +178,7 @@ document.addEventListener("DOMContentLoaded", function() {
       const name = themeName.value;
       const id = new Date().getTime().toString();
       if(name /* && !editFlag */){
-          createListItem(id, name);
+          createListItem(id, name, menuTColor, menuBgColor, headerTColor, headerBgColor, contentTColor, contentBgColor);
           // Display alert
           window.alert("tema añadido");
           /* displayAlert("item added to the list", "success"); */
@@ -198,8 +199,57 @@ document.addEventListener("DOMContentLoaded", function() {
       }
     });
   } 
+
+  function showList(){
+    let noItemsMessage = document.querySelector(".no-items-message");
+    let clearThemesBtn = document.querySelector(".btn-clear-themes");
+    let container = document.querySelector(".themes-container");
   
-  function createListItem(id, value){
+    let themes = JSON.parse(localStorage.getItem("themes"));
+    if(themes && themes.length > 0){
+      console.log("lista contiene elementos");
+      noItemsMessage.classList.remove("show-container");
+      clearThemesBtn.classList.add("show-container");
+  
+      themes.forEach(function(item)   {
+        for (let property in item) {
+          if (item.hasOwnProperty(property)) {
+      
+            // Aquí puedes guardar el valor de cada propiedad en una variable independiente
+            var id = item.id;
+            var name = item.name;
+            var menuTColor = item.menuTColor;
+            var menuBgColor = item.menuBgColor;
+            var headerTColor = item.headerTColor;
+            var headerBgColor = item.headerBgColor;
+            var contentTColor = item.contentTColor;
+            var contentBgColor = item.contentBgColor;
+          }
+        }
+        createListItem(id, name, menuTColor, menuBgColor, headerTColor, headerBgColor, contentTColor, contentBgColor)
+      });
+  
+      /* let id = themes.id;
+      let name = themes.name;
+      let menuTColor = themes.menuTColor;
+      let menuBgColor = themes.menuBgColor;
+      let headerTColor = themes.headerTColor;
+      let headerBgColor = themes.headerBgColor;
+      let contentTColor = themes.contentTColor;
+      let contentBgColor = themes.contentBgColor;
+      
+      createListItem(id, name, menuTColor, menuBgColor, headerTColor, headerBgColor, contentTColor, contentBgColor); */
+  
+      container.classList.add("show-container");
+    }else{
+      console.log("lista vacia o inexistente");
+      noItemsMessage.classList.add("show-container");
+      clearThemesBtn.classList.remove("show-container");
+      container.classList.remove("show-container");
+    }
+  }
+  
+  function createListItem(id, name, menuTColor, menuBgColor, headerTColor, headerBgColor, contentTColor, contentBgColor){
     const element = document.createElement("article");
     //add class
     element.classList.add("theme-item");
@@ -208,24 +258,24 @@ document.addEventListener("DOMContentLoaded", function() {
     attr.value = id;
     element.setAttributeNode(attr);
     element.innerHTML = `
-        <div class="theme-data">
-          <p class="title">${value}</p><br>
-          <span><div>1</div></span>
-          <span><div>2</div></span>
-          <span><div>3</div></span>
-          <span><div4</div></span>
-          <span><div>5</div></span>
-          <span><div>6</div></span>
-      
-          <div class="btn-container">
-            <button type="button" class="edit-btn">
-              <i class="fas fa-edit"></i>
-            </button>
-            <button type="button" class="delete-btn">
-              <i class="fas fa-trash"></i>
-            </button>
-          </div>
-        </div>`;
+    <div class="theme-data">
+      <p class="title">${name}</p><br></br>
+      <span style="backgroundColor: ${menuTColor}"></span>
+      <span style="backgroundColor: ${menuBgColor}"></span>
+      <span style="backgroundColor: ${headerTColor}"></span>
+      <span style="backgroundColor: ${headerBgColor}"></span>
+      <span style="backgroundColor: ${contentTColor}"></span>
+      <span style="backgroundColor: ${contentBgColor}"></span>
+
+      <div class="btn-container">
+      <button type="button" class="edit-btn">
+          <i class="fas fa-edit"></i>
+      </button>
+      <button type="button" class="delete-btn">
+          <i class="fas fa-trash"></i>
+      </button>
+      </div>
+    </div>`;
     // Append child
     list.appendChild(element);
     // Select buttons and add event listeners
@@ -235,9 +285,8 @@ document.addEventListener("DOMContentLoaded", function() {
     deleteBtn.addEventListener("click", deleteItem()); */
   }
   
-  function addToLocalStorage(id, value, menuTColor, menuBgColor, headerTColor, headerBgColor, contentTColor, contentBgColor){
-    /* const theme = {id, value, menuTColor, menuBgColor, headerTColor, headerBgColor, contentTColor, contentBgColor}; */
-    const theme = {id, value, menuTColor, menuBgColor, headerTColor, headerBgColor, contentTColor, contentBgColor};
+  function addToLocalStorage(id, name, menuTColor, menuBgColor, headerTColor, headerBgColor, contentTColor, contentBgColor){
+    const theme = {id, name, menuTColor, menuBgColor, headerTColor, headerBgColor, contentTColor, contentBgColor};
     let themes = getLocalStorage();
     themes.push(theme);
     localStorage.setItem("themes", JSON.stringify(themes));
@@ -250,6 +299,8 @@ function getLocalStorage(){
   ? JSON.parse(localStorage.getItem("themes")) 
   : [];
 }
+
+
 /*CODE PROBABLY TO DELETE*/
 
 /* function rgbaToRgb(rgba) {

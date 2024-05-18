@@ -94,25 +94,28 @@
                     <form class="theme-form content">
                         <div class="form-control d-flex justify-content-between p2">
                             <div>
-                                <label for="themes">Nombre del tema:</label>
+                                <label for="theme-name">Nombre del tema:</label>
                                 <input class="theme-name" type="text" id="theme-name">
                             </div>
                             <button type="submit" class="btn save-theme-btn primary-btn" id="save-theme-btn">Guardar Tema</button>
                         </div>
                     </form>
 
-                    {{-- <div class="content">
+                    <div class="content">
                         <h3>Temas</h3>
                         <!-- list -->
                         <div class="themes-container">
-                            <div class="themes-list">
-                            {{-- <article class="theme-item">
-                                
-                            </article>
+                            <div class="no-items-message">
+                                <p>No hay temas para mostrar.</p>
                             </div>
-                            <button type="button" class="clear-btn">clear items</button>
+                            <div class="themes-list">
+                                
+                            </div>
+                            <div class="btn-clear-themes">
+                                <button type="button" class="clear-btn">clear items</button>
+                            </div>
                         </div>
-                    </div> --}}
+                    </div>
 
                 </div>
             </div>
