@@ -26,7 +26,9 @@ document.addEventListener("DOMContentLoaded", function() {
   const svThemeBtn = document.getElementById("save-theme-btn");
   const themeName = document.getElementById("theme-name");
   const container = document.querySelector(".themes-container");
-  const list = document.querySelector(".themes-list");
+  const list = document.querySelector(".theme-list");
+
+  var saving = false;
   
   // Setting light or dark mode if colors have not been modified
   if (initialTheme === "dark") {
@@ -174,18 +176,20 @@ document.addEventListener("DOMContentLoaded", function() {
   function saveTheme(){
     svThemeBtn.addEventListener("click", (e) =>{
       e.preventDefault();
+      saving = true;
       // Creating a new theme
       const name = themeName.value;
       const id = new Date().getTime().toString();
-      if(name /* && !editFlag */){
+      if(name !== ""/* && !editFlag */){
           createListItem(id, name, menuTColor, menuBgColor, headerTColor, headerBgColor, contentTColor, contentBgColor);
           // Display alert
           window.alert("tema añadido");
-          /* displayAlert("item added to the list", "success"); */
           // Show container
-          container.classList.add("show-container");
+          /* container.classList.add("show-container"); */
           // Add to local storage
           addToLocalStorage(id, name, menuTColor, menuBgColor, headerTColor, headerBgColor, contentTColor, contentBgColor);
+          showList();
+          saving = false;
           // Set back to default
           /* setBackToDefault(); */
       }else if(value && editFlag){
@@ -195,7 +199,7 @@ document.addEventListener("DOMContentLoaded", function() {
           editLocalStorage(editID, value);
           setBackToDefault();
       }else{
-          /* displayAlert("please enter value", "danger"); */
+          displayAlert("please enter value", "danger");
       }
     });
   } 
@@ -203,54 +207,42 @@ document.addEventListener("DOMContentLoaded", function() {
   function showList(){
     let noItemsMessage = document.querySelector(".no-items-message");
     let clearThemesBtn = document.querySelector(".btn-clear-themes");
-    let container = document.querySelector(".themes-container");
-  
     let themes = JSON.parse(localStorage.getItem("themes"));
+    
     if(themes && themes.length > 0){
-      console.log("lista contiene elementos");
-      noItemsMessage.classList.remove("show-container");
-      clearThemesBtn.classList.add("show-container");
-  
-      themes.forEach(function(item)   {
-        for (let property in item) {
-          if (item.hasOwnProperty(property)) {
-      
-            // Aquí puedes guardar el valor de cada propiedad en una variable independiente
-            var id = item.id;
-            var name = item.name;
-            var menuTColor = item.menuTColor;
-            var menuBgColor = item.menuBgColor;
-            var headerTColor = item.headerTColor;
-            var headerBgColor = item.headerBgColor;
-            var contentTColor = item.contentTColor;
-            var contentBgColor = item.contentBgColor;
+      if(!saving){
+        console.log("lista contiene elementos");
+        themes.forEach(function(item) {
+          for (let property in item) {
+            if (item.hasOwnProperty(property)) {
+        
+              // Saving the value of each property
+              var id = item.id;
+              var name = item.name;
+              var menuTColor = item.menuTColor;
+              var menuBgColor = item.menuBgColor;
+              var headerTColor = item.headerTColor;
+              var headerBgColor = item.headerBgColor;
+              var contentTColor = item.contentTColor;
+              var contentBgColor = item.contentBgColor;
+            }
           }
-        }
-        createListItem(id, name, menuTColor, menuBgColor, headerTColor, headerBgColor, contentTColor, contentBgColor)
-      });
-  
-      /* let id = themes.id;
-      let name = themes.name;
-      let menuTColor = themes.menuTColor;
-      let menuBgColor = themes.menuBgColor;
-      let headerTColor = themes.headerTColor;
-      let headerBgColor = themes.headerBgColor;
-      let contentTColor = themes.contentTColor;
-      let contentBgColor = themes.contentBgColor;
-      
-      createListItem(id, name, menuTColor, menuBgColor, headerTColor, headerBgColor, contentTColor, contentBgColor); */
-  
-      container.classList.add("show-container");
+          createListItem(id, name, menuTColor, menuBgColor, headerTColor, headerBgColor, contentTColor, contentBgColor);
+        });
+      }
+      noItemsMessage.classList.add("hide-container");
+      clearThemesBtn.classList.remove("hide-container");
+      container.classList.remove("hide-container");
     }else{
       console.log("lista vacia o inexistente");
-      noItemsMessage.classList.add("show-container");
-      clearThemesBtn.classList.remove("show-container");
-      container.classList.remove("show-container");
+      noItemsMessage.classList.remove("hide-container");
+      clearThemesBtn.classList.add("hide-container");
+      container.classList.add("hide-container");
     }
   }
-  
+
   function createListItem(id, name, menuTColor, menuBgColor, headerTColor, headerBgColor, contentTColor, contentBgColor){
-    const element = document.createElement("article");
+    const element = document.createElement("tr");
     //add class
     element.classList.add("theme-item");
     //add id
@@ -258,24 +250,30 @@ document.addEventListener("DOMContentLoaded", function() {
     attr.value = id;
     element.setAttributeNode(attr);
     element.innerHTML = `
-    <div class="theme-data">
-      <p class="title">${name}</p><br></br>
-      <span style="backgroundColor: ${menuTColor}"></span>
-      <span style="backgroundColor: ${menuBgColor}"></span>
-      <span style="backgroundColor: ${headerTColor}"></span>
-      <span style="backgroundColor: ${headerBgColor}"></span>
-      <span style="backgroundColor: ${contentTColor}"></span>
-      <span style="backgroundColor: ${contentBgColor}"></span>
-
-      <div class="btn-container">
-      <button type="button" class="edit-btn">
-          <i class="fas fa-edit"></i>
-      </button>
-      <button type="button" class="delete-btn">
-          <i class="fas fa-trash"></i>
-      </button>
+    <td class="td-themes">
+      <p class="title">${name}</p>
+    </td>
+    <td class="td-themes">
+      <div class="theme-colors">
+        <div class="theme-color" style="background-color: ${menuTColor}"></div>
+        <div class="theme-color" style="background-color: ${menuBgColor}"></div>
+        <div class="theme-color" style="background-color: ${headerTColor}"></div>
+        <div class="theme-color" style="background-color: ${headerBgColor}"></div>
+        <div class="theme-color" style="background-color: ${contentTColor}"></div>
+        <div class="theme-color" style="background-color: ${contentBgColor}"></div>
       </div>
-    </div>`;
+    </td>
+    <td class="td-themes">
+      <div class="btn-container">
+        <button type="button" class="btn btn-secondary btn-sm edit-btn">
+            <i class="fas fa-edit"></i>
+        </button>
+        <button type="button" class="btn btn-danger btn-sm delete-btn">
+            <i class="fas fa-trash"></i>
+        </button>
+      </div>
+    </td>
+    `;
     // Append child
     list.appendChild(element);
     // Select buttons and add event listeners

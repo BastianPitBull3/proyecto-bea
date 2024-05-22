@@ -92,28 +92,39 @@
                 <div class="themes p-2 mt-2 mb-2">
                     <h4 class="secondary-header-text mt-2">Guardar tema</h4>
                     <form class="theme-form content">
-                        <div class="form-control d-flex justify-content-between p2">
+                        <div class="form-control d-flex justify-content-between align-items-center p2">
                             <div>
                                 <label for="theme-name">Nombre del tema:</label>
                                 <input class="theme-name" type="text" id="theme-name">
                             </div>
-                            <button type="submit" class="btn save-theme-btn primary-btn" id="save-theme-btn">Guardar Tema</button>
+                            <button type="submit" class="btn btn-primary btn-sm" id="save-theme-btn">Guardar</button>
                         </div>
                     </form>
 
                     <div class="content">
                         <h3>Temas</h3>
+                        <div class="no-items-message hide-container">
+                            <p>No hay temas para mostrar.</p>
+                        </div>
                         <!-- list -->
-                        <div class="themes-container">
-                            <div class="no-items-message">
-                                <p>No hay temas para mostrar.</p>
+                        <div class="themes-container hide-container">
+                            <div {{-- class="themes-list" --}}>
+                                <table class="themes-table">
+                                    <thead>
+                                        <tr>
+                                            <th>Nombre</th>
+                                            <th>Colores</th>
+                                            <th>Acciones</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody class="theme-list">
+
+                                    </tbody>
+                                </table>
                             </div>
-                            <div class="themes-list">
-                                
-                            </div>
-                            <div class="btn-clear-themes">
-                                <button type="button" class="clear-btn">clear items</button>
-                            </div>
+                        </div>
+                        <div class="btn-clear-themes hide-container">
+                            <button type="button" class="btn btn-danger btn-sm">Clear</button>
                         </div>
                     </div>
 

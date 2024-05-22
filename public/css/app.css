@@ -94,19 +94,6 @@ input[type='color'].form-control-color {
 .secondary-header-text{
     font-weight: bold;
 }
-.save-theme-btn{
-    padding-top: 4px;
-    margin-left: 12px;
-    background-color: #005A9C;
-    color: white;
-    height: 34px;
-    font-size: medium;
-    text-align: center;
-}
-.save-theme-btn:hover{
-    background-color: #006EC2;
-    color: white;
-}
 .td-actions{
         margin-left: 18px;
         display: flex;
@@ -145,17 +132,46 @@ input[type='color'].form-control-color {
     margin: 12px 6px;
 }
 .no-items-message{
-    visibility: hidden;
+    padding: 12px 0;
+    justify-content: center;
+    text-align: center;
+    align-items: center;
+    border-radius: 8px;
+    background-color: #EEEEEE;
 }
-.theme-data{
+p{
+    margin:0
+}
+.themes-container{
+    justify-content: center;
+    text-align: center;
+}
+.td-themes{
+    padding: 4px;
+    align-items: center;
+}
+p.title{
+    margin-bottom: 0;
+}
+.theme-colors{
     display: flex;
-    justify-content: space-evenly;
+    justify-content: center;
 }
-.show-container {
-    visibility: visible;
+.theme-color{
+    margin: 0 4px 0 4px;
+    border: 1px solid black;
+    border-radius: 2px;
+    display: inline-block;
+    height: 15px;
+    width: 15px;
 }
 .btn-clear-themes{
-    visibility: hidden;
+    display: flex;
+    margin-top: 8px;
+    justify-content: center;
+}
+.hide-container {
+    display: none;
 }
 #main{
     width: 100%;
