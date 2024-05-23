@@ -124,7 +124,7 @@
                             </div>
                         </div>
                         <div class="btn-clear-themes hide-container">
-                            <button type="button" class="btn btn-danger btn-sm">Clear</button>
+                            <button type="button" class="btn btn-danger btn-sm">Borrar todo</button>
                         </div>
                     </div>
 

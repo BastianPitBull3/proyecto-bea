@@ -27,8 +27,10 @@ document.addEventListener("DOMContentLoaded", function() {
   const themeName = document.getElementById("theme-name");
   const container = document.querySelector(".themes-container");
   const list = document.querySelector(".theme-list");
+  var editBtns, deleteBtns;
 
   var saving = false;
+  var deleting = false;
   
   // Setting light or dark mode if colors have not been modified
   if (initialTheme === "dark") {
@@ -180,7 +182,7 @@ document.addEventListener("DOMContentLoaded", function() {
       // Creating a new theme
       const name = themeName.value;
       const id = new Date().getTime().toString();
-      if(name !== ""/* && !editFlag */){
+      if(name != ""/* && !editFlag */){
           createListItem(id, name, menuTColor, menuBgColor, headerTColor, headerBgColor, contentTColor, contentBgColor);
           // Display alert
           window.alert("tema añadido");
@@ -202,43 +204,6 @@ document.addEventListener("DOMContentLoaded", function() {
           displayAlert("please enter value", "danger");
       }
     });
-  } 
-
-  function showList(){
-    let noItemsMessage = document.querySelector(".no-items-message");
-    let clearThemesBtn = document.querySelector(".btn-clear-themes");
-    let themes = JSON.parse(localStorage.getItem("themes"));
-    
-    if(themes && themes.length > 0){
-      if(!saving){
-        console.log("lista contiene elementos");
-        themes.forEach(function(item) {
-          for (let property in item) {
-            if (item.hasOwnProperty(property)) {
-        
-              // Saving the value of each property
-              var id = item.id;
-              var name = item.name;
-              var menuTColor = item.menuTColor;
-              var menuBgColor = item.menuBgColor;
-              var headerTColor = item.headerTColor;
-              var headerBgColor = item.headerBgColor;
-              var contentTColor = item.contentTColor;
-              var contentBgColor = item.contentBgColor;
-            }
-          }
-          createListItem(id, name, menuTColor, menuBgColor, headerTColor, headerBgColor, contentTColor, contentBgColor);
-        });
-      }
-      noItemsMessage.classList.add("hide-container");
-      clearThemesBtn.classList.remove("hide-container");
-      container.classList.remove("hide-container");
-    }else{
-      console.log("lista vacia o inexistente");
-      noItemsMessage.classList.remove("hide-container");
-      clearThemesBtn.classList.add("hide-container");
-      container.classList.add("hide-container");
-    }
   }
 
   function createListItem(id, name, menuTColor, menuBgColor, headerTColor, headerBgColor, contentTColor, contentBgColor){
@@ -276,11 +241,6 @@ document.addEventListener("DOMContentLoaded", function() {
     `;
     // Append child
     list.appendChild(element);
-    // Select buttons and add event listeners
-    const editBtn = element.querySelector(".edit-btn");
-    const deleteBtn = element.querySelector(".delete-btn");
-    /* editBtn.addEventListener("click", editItem());
-    deleteBtn.addEventListener("click", deleteItem()); */
   }
   
   function addToLocalStorage(id, name, menuTColor, menuBgColor, headerTColor, headerBgColor, contentTColor, contentBgColor){
@@ -289,16 +249,110 @@ document.addEventListener("DOMContentLoaded", function() {
     themes.push(theme);
     localStorage.setItem("themes", JSON.stringify(themes));
   }
-  
-});
 
-function getLocalStorage(){
-  return localStorage.getItem("themes") 
-  ? JSON.parse(localStorage.getItem("themes")) 
-  : [];
-}
+  function getLocalStorage(){
+    return localStorage.getItem("themes") 
+    ? JSON.parse(localStorage.getItem("themes")) 
+    : [];
+  }
 
+  function clearThemes(object){
+    object.addEventListener("click", (e) =>{
+      localStorage.removeItem("themes");
+      showList();
+    });
+  }
 
+  function showList(){
+    let noItemsMessage = document.querySelector(".no-items-message");
+    const clearThemesBtn = document.querySelector(".btn-clear-themes");
+    let themes = JSON.parse(localStorage.getItem("themes"))
+
+    if(themes && themes.length > 0){
+      if(!saving && !deleting){
+        console.log("lista contiene elementos");
+        themes.forEach(function(item) {
+          for (let property in item) {
+            if (item.hasOwnProperty(property)) {
+        
+              // Saving the value of each property
+              var id = item.id;
+              var name = item.name;
+              var menuTColor = item.menuTColor;
+              var menuBgColor = item.menuBgColor;
+              var headerTColor = item.headerTColor;
+              var headerBgColor = item.headerBgColor;
+              var contentTColor = item.contentTColor;
+              var contentBgColor = item.contentBgColor;
+            }
+          }
+          createListItem(id, name, menuTColor, menuBgColor, headerTColor, headerBgColor, contentTColor, contentBgColor);
+        });
+      }
+      // Select buttons and add event listeners
+      editBtns = document.querySelectorAll(".edit-btn");
+      deleteBtns = document.querySelectorAll(".delete-btn");
+      editBtns.forEach(function(btn){
+        btn.addEventListener("click", (e) => {
+          editItem(e);
+        });
+      });
+      deleteBtns.forEach(function(btn){
+        btn.addEventListener("click", (e) => {
+          deleteItem(e);
+        });
+      });
+
+      //Hide the message of "No items to show" and show the button for clearing and the themes container.
+      noItemsMessage.classList.add("hide-container");
+      clearThemesBtn.classList.remove("hide-container");
+      clearThemes(clearThemesBtn);
+      container.classList.remove("hide-container");
+    }else{
+      // Delete all child elements from list
+      while (list.firstChild) {
+        list.removeChild(list.firstChild);
+      }
+
+      console.log("lista vacia o inexistente");
+      noItemsMessage.classList.remove("hide-container");
+      clearThemesBtn.classList.add("hide-container");
+      container.classList.add("hide-container");
+    }
+  }
+
+  function editItem(e){
+    console.log("ditar presionado");
+  }
+
+  function deleteItem(e){
+    deleting = true;
+
+    let element = e.target.parentElement.parentElement.parentElement;
+    if(element.classList.contains("theme-item")){
+      var id = element.dataset.id;
+      console.log("tr " + element);
+    }else{
+      console.log("td" + element);
+      element = element.parentElement
+      console.log("tr " + element);
+      var id = element.dataset.id;
+    }
+    list.removeChild(element);
+
+    /*****Code for deleting a single theme from the list but not from the localStorage*****/
+
+    /*****Code for deleting a single theme from the localStorage and then showing the list*****/
+    
+    let themes = getLocalStorage();
+    themes = themes.filter(theme => theme.id !== id);
+    localStorage.setItem("themes", JSON.stringify(themes));
+    
+    if(themes.length == 0){
+      showList();
+    }
+    deleting = false;
+  }
 /*CODE PROBABLY TO DELETE*/
 
 /* function rgbaToRgb(rgba) {
@@ -314,10 +368,13 @@ function getLocalStorage(){
 
 // Saving a new theme
 /*** CONVERTING RGB COLOR TO HEXADECIMAL ***/
-function rgbToHex(rgb) {
-  var a = rgb.match(/^rgb\((\d+),\s*(\d+),\s*(\d+)\)$/);
-  return "#" + 
-          ("0" + parseInt(a[1],10).toString(16)).slice(-2) + 
-          ("0" + parseInt(a[2],10).toString(16)).slice(-2) + 
-          ("0" + parseInt(a[3],10).toString(16)).slice(-2);
-}
+
+  function rgbToHex(rgb) {
+    var a = rgb.match(/^rgb\((\d+),\s*(\d+),\s*(\d+)\)$/);
+    return "#" +
+            ("0" + parseInt(a[1],10).toString(16)).slice(-2) + 
+            ("0" + parseInt(a[2],10).toString(16)).slice(-2) + 
+            ("0" + parseInt(a[3],10).toString(16)).slice(-2);
+  }
+
+});
