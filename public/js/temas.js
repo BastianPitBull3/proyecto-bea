@@ -14,20 +14,24 @@ document.addEventListener("DOMContentLoaded", function() {
   const table = document.querySelector(".table");
   const contentElement = document.querySelector(".content");
 
-  const menuTextColorSel = document.getElementById("color-menu-text");
-  const menuBgColorSel = document.getElementById("color-menu-bg");
-  const headerTextColorSel = document.getElementById("color-header-text");
-  const headerBgColorSel = document.getElementById("color-header-bg");
-  const contentTextColorSel = document.getElementById("color-content-text");
-  const contentBgColorSel = document.getElementById("color-content-bg");
+  const colorSelectors = {
+    menuTColorSel: document.getElementById("color-menu-text"),
+    menuBgColorSel: document.getElementById("color-menu-bg"),
+    headerTColorSel: document.getElementById("color-header-text"),
+    headerBgColorSel: document.getElementById("color-header-bg"),
+    contentTColorSel: document.getElementById("color-content-text"),
+    contentBgColorSel: document.getElementById("color-content-bg")
+  }
 
   var menuTColor, menuBgColor, headerTColor, headerBgColor, contentTColor, contentBgColor;
+
+  var customTheme = null;
 
   const svThemeBtn = document.getElementById("save-theme-btn");
   const themeName = document.getElementById("theme-name");
   const container = document.querySelector(".themes-container");
   const list = document.querySelector(".theme-list");
-  var editBtns, deleteBtns;
+  var applyBtns, editBtns, deleteBtns;
 
   var saving = false;
   var deleting = false;
@@ -37,11 +41,11 @@ document.addEventListener("DOMContentLoaded", function() {
     if (checkbox != null){
       checkbox.checked = true;
     }
-    darkTheme();
+    setDarkTheme();
   }else if (initialTheme === "light") {
-    lightTheme();
+    setLightTheme();
   }else {
-    customTheme(initialTheme);
+    setCustomTheme(0);
   }
 
   themeSwitch();
@@ -55,13 +59,12 @@ document.addEventListener("DOMContentLoaded", function() {
     // When light/dark mode switch clicked
     checkbox.addEventListener("change", function() {
       if (checkbox.checked) {
-        darkTheme();
+        setDarkTheme();
         localStorage.setItem("initialTheme", "dark");
       }else {
-        lightTheme();
+        setLightTheme();
         localStorage.setItem("initialTheme", "light");
       }
-
       // Updating color selectors values
       setColorSelectors();
     });
@@ -74,12 +77,15 @@ document.addEventListener("DOMContentLoaded", function() {
   }
   
   /*** SETTING DARK THEME ***/
-  function darkTheme(){
+  function setDarkTheme(){
     navbarBrand.style.color = "#FFFFFF";
     menuText.forEach((element) => element.style.color = "#FFFFFF");
     navbarToggler.style.color = "#FFFFFF";
     togglerIcon.style.color = "#FFFFFF";
     menuBg.style.backgroundColor = "#2B3035";
+    if(headerText.style.color != "#005a9c"){
+      headerText.style.color = "#005a9c";
+    }
     headerBg.style.backgroundColor = "rgb(33,37,41)";
     document.body.style.backgroundColor = "rgb(33,37,41)";
     setTableColors("#FFFFFF", "rgb(33,37,41)", "rgb(73,80,87)");
@@ -87,20 +93,111 @@ document.addEventListener("DOMContentLoaded", function() {
   }
 
   /*** SETTING LIGHT THEME ***/
-  function lightTheme(){
+  function setLightTheme(){
     navbarBrand.style.color = "#000000";
     menuText.forEach((element) => element.style.color = "#000000");
     navbarToggler.style.color = "#2B3035";
     togglerIcon.style.color = "#2B3035";
     menuBg.style.backgroundColor = "#F8F9FA";
+    if(headerText.style.color != "#005a9c"){
+      headerText.style.color = "#005a9c";
+    }
     headerBg.style.backgroundColor = "#FFFFFF";
     document.body.style.backgroundColor = "#FFFFFF";
     setTableColors("#000000", "#FFFFFF", "#DEE2E6");
     content.forEach((element) => element.style.color = "#000000");
   }
 
-  function customTheme(ThemeId){
+  function setCustomThemeProp(property){
+    if (customTheme != null) {
+      let selector = property + "Sel";
+      customTheme[property] = colorSelectors[selector].value;
+    }else{
+      if(colorSelectors){
+        mTColor = colorSelectors.menuTColorSel.value;
+        mBgColor = colorSelectors.menuBgColorSel.value;
+        hTColor = colorSelectors.headerTColorSel.value;
+        hBgColor = colorSelectors.headerBgColorSel.value;
+        cTColor = colorSelectors.contentTColorSel.value;
+        cBgColor = colorSelectors.contentBgColorSel.value;
+        createCustomTheme(mTColor, mBgColor, hTColor, hBgColor, cTColor, cBgColor);
+      }
+    }
+    localStorage.setItem("customTheme", JSON.stringify(customTheme));
+    console.log("custom theme has changed");
+  }
 
+  function createCustomTheme(mTColor, mBgColor, hTColor, hBgColor, cTColor, cBgColor){
+    return {
+      menuTColor: mTColor,
+      menuBgColor: mBgColor,
+      headerTColor: hTColor,
+      headerBgColor: hBgColor,
+      contentTColor: cTColor,
+      contentBgColor: cBgColor
+    }
+  }
+
+  function setCustomTheme(themeId){
+    if(themeId != 0){
+      console.log("Aplicar tema");
+      let themes = getLocalStorage();
+      let theme = themes.filter(theme => theme.id === themeId)[0];
+      /* localStorage.setItem("customTheme", JSON.stringify(theme)); */
+      console.log(theme);
+      if(theme){
+        let mTColor, mBgColor, hTColor, hBgColor, cTColor, cBgColor;
+        mTColor = theme.menuTColor;
+        mBgColor = theme.menuBgColor;
+        hTColor = theme.headerBgColor;
+        hBgColor = theme.headerBgColor;
+        cTColor = theme.contentTColor;
+        cBgColor = theme.contentBgColor;
+        setColors(mTColor, mBgColor, hTColor, hBgColor, cTColor, cBgColor);
+        let customTheme = createCustomTheme(mTColor, mBgColor, hTColor, hBgColor, cTColor, cBgColor);
+        localStorage.setItem("customTheme", JSON.stringify(customTheme));
+        setColorSelectors();
+      }
+    }else{
+      customTheme = JSON.parse(localStorage.getItem("customTheme"));
+
+      setColors
+      (
+        customTheme.menuTColor, 
+        customTheme.menuBgColor, 
+        customTheme.headerTColor,
+        customTheme.headerBgColor,
+        customTheme.contentTColor,
+        customTheme.headerBgColor
+      );
+      
+      /* navbarBrand.style.color = customTheme.menuTColor;
+      menuText.forEach((element) => element.style.color = customTheme.menuTColor);
+      navbarToggler.style.color = customTheme.menuTColor;
+      togglerIcon.style.color = customTheme.menuTColor;
+      menuBg.style.backgroundColor = customTheme.menuBgColor;
+      headerText.style.color = customTheme.headerTColor;
+      headerBg.style.backgroundColor = customTheme.headerBgColor;
+      content.forEach((element) => element.style.color = customTheme.contentTColor);
+      table.style.setProperty('--bs-table-color', customTheme.contentBgColor);
+      document.body.style.backgroundColor = customTheme.contentBgColor;
+      setTableColors(customTheme.contentTColor, customTheme.contentBgColor, "#DEE2E6"); */
+    }
+    localStorage.setItem("initialTheme", "customTheme");
+  }
+
+  function setColors(mTColor, mBgColor, hTColor, hBgColor, cTColor, cBgColor){
+      navbarBrand.style.color = mTColor
+      menuText.forEach((element) => element.style.color = mTColor);
+      navbarToggler.style.color = mTColor;
+      togglerIcon.style.color = mTColor;
+      menuBg.style.backgroundColor = mBgColor;
+      headerText.style.color = hTColor;
+      headerBg.style.backgroundColor = hBgColor;
+      content.forEach((element) => element.style.color = cTColor);
+      table.style.setProperty('--bs-table-color', cBgColor);
+      document.body.style.backgroundColor = cBgColor;
+      setTableColors(cTColor, cBgColor, "#DEE2E6");
   }
 
   /*** SETTING THE VALUES FOR COLOR SELECTORS ***/
@@ -109,68 +206,80 @@ document.addEventListener("DOMContentLoaded", function() {
       // Setting the value of the menu text´s color selector
       menuTColor = menuText[0].style.color;
       menuTColor = rgbToHex(menuTColor);
-      menuTextColorSel.value = menuTColor;
+      colorSelectors.menuTColorSel.value = menuTColor;
       
       // Setting the value of the menu background´s color selector
       menuBgColor = window.getComputedStyle(menuBg).backgroundColor;
       menuBgColor = rgbToHex(menuBgColor);
-      menuBgColorSel.value = menuBgColor;
+      colorSelectors.menuBgColorSel.value = menuBgColor;
 
       // Setting the value of the headers text´s color selector
       headerTColor = window.getComputedStyle(headerText).color;
       headerTColor = rgbToHex(headerTColor);
-      headerTextColorSel.value = headerTColor;
+      colorSelectors.headerTColorSel.value = headerTColor;
 
       // Setting the value of the headers background´s color selector
       headerBgColor = window.getComputedStyle(headerBg).backgroundColor;
       headerBgColor = rgbToHex(headerBgColor);
-      headerBgColorSel.value = headerBgColor;
+      colorSelectors.headerBgColorSel.value = headerBgColor;
 
       // Setting the value of the content text´s color selector
       contentTColor = window.getComputedStyle(contentElement).color;
       contentTColor = rgbToHex(contentTColor);
-      contentTextColorSel.value = contentTColor;
+      colorSelectors.contentTColorSel.value = contentTColor;
 
       // Setting the value of the content background´s color selector
       contentBgColor = window.getComputedStyle(document.body).backgroundColor;
       contentBgColor = rgbToHex(contentBgColor);
-      contentBgColorSel.value = contentBgColor;
+      colorSelectors.contentBgColorSel.value = contentBgColor;
     }, 100)
   }
 
   /*** CHANGING THE COLOR OF SPECIFIC ELEMENTS ***/
   function changeColor(){
     // MENU TEXT
-    menuTextColorSel.addEventListener("change", () => {
-      menuTColor = menuTextColorSel.value
+    colorSelectors.menuTColorSel.addEventListener("change", () => {
+      menuTColor = colorSelectors.menuTColorSel.value
       menuText.forEach((element) => element.style.color = menuTColor);
+      setCustomThemeProp("menuTColor");
+      localStorage.setItem("initialTheme", "custom");
     });
     // MENU BACKGROUND
-    menuBgColorSel.addEventListener("change", () => {
-      menuBgColor = menuBgColorSel.value;
-      menuBg.style.backgroundColor = menuBgColor; 
+    colorSelectors.menuBgColorSel.addEventListener("change", () => {
+      menuBgColor = colorSelectors.menuBgColorSel.value;
+      menuBg.style.backgroundColor = menuBgColor;
+      setCustomThemeProp("menuBgColor");
+      localStorage.setItem("initialTheme", "custom");
     });
     // HEADERS TEXT
-    headerTextColorSel.addEventListener("change", () => {
-      headerTColor = headerTextColorSel.value;
+    colorSelectors.headerTColorSel.addEventListener("change", () => {
+      headerTColor = colorSelectors.headerTColorSel.value;
       headerText.style.color = headerTColor;
+      setCustomThemeProp("headerTColor");
+      localStorage.setItem("initialTheme", "custom");
     });
     // HEADERS BACKGROUND
-    headerBgColorSel.addEventListener("change", () => {
-      headerBgColor = headerBgColorSel.value
+    colorSelectors.headerBgColorSel.addEventListener("change", () => {
+      headerBgColor = colorSelectors.headerBgColorSel.value
       headerBg.style.backgroundColor = headerBgColor;
+      setCustomThemeProp("headerBgColor");
+      localStorage.setItem("initialTheme", "custom");
     });
     // CONTENT TEXT
-    contentTextColorSel.addEventListener("change", () => {
-      contentTColor = contentTextColorSel.value
+    colorSelectors.contentTColorSel.addEventListener("change", () => {
+      contentTColor = colorSelectors.contentTColorSel.value
       content.forEach((element) => element.style.color = contentTColor);
       table.style.setProperty('--bs-table-color', contentTColor);
+      setCustomThemeProp("contentTColor");
+      localStorage.setItem("initialTheme", "custom");
     });
     // CONTENT BACKGROUND 
-    contentBgColorSel.addEventListener("change", () => {
-      contentBgColor = contentBgColorSel.value;
+    colorSelectors.contentBgColorSel.addEventListener("change", () => {
+      contentBgColor = colorSelectors.contentBgColorSel.value;
       document.body.style.backgroundColor = contentBgColor;
       table.style.setProperty('--bs-table-bg', contentBgColor);
+      setCustomThemeProp("contentBgColor");
+      localStorage.setItem("initialTheme", "custom");
     });
   }
 
@@ -230,11 +339,14 @@ document.addEventListener("DOMContentLoaded", function() {
     </td>
     <td class="td-themes">
       <div class="btn-container">
+        <button type="button" class="btn btn-primary btn-sm apply-btn">
+          Aplicar  
+        </button>
         <button type="button" class="btn btn-secondary btn-sm edit-btn">
-            <i class="fas fa-edit"></i>
+          <i class="fas fa-edit"></i>
         </button>
         <button type="button" class="btn btn-danger btn-sm delete-btn">
-            <i class="fas fa-trash"></i>
+          <i class="fas fa-trash"></i>
         </button>
       </div>
     </td>
@@ -289,15 +401,27 @@ document.addEventListener("DOMContentLoaded", function() {
           createListItem(id, name, menuTColor, menuBgColor, headerTColor, headerBgColor, contentTColor, contentBgColor);
         });
       }
+
       // Select buttons and add event listeners
+      applyBtns = document.querySelectorAll(".apply-btn");
       editBtns = document.querySelectorAll(".edit-btn");
       deleteBtns = document.querySelectorAll(".delete-btn");
-      editBtns.forEach(function(btn){
+
+      applyBtns.forEach( (btn) => {
+        btn.addEventListener("click", (e) => {
+          let target = e.target;
+          let theme = target.parentElement.parentElement.parentElement;
+          localStorage.setItem("customTheme", theme);
+          let id = theme.dataset.id;
+          setCustomTheme(id);
+        });
+      });
+      editBtns.forEach( (btn) => {
         btn.addEventListener("click", (e) => {
           editItem(e);
         });
       });
-      deleteBtns.forEach(function(btn){
+      deleteBtns.forEach( (btn) => {
         btn.addEventListener("click", (e) => {
           deleteItem(e);
         });
@@ -322,7 +446,7 @@ document.addEventListener("DOMContentLoaded", function() {
   }
 
   function editItem(e){
-    console.log("ditar presionado");
+    customTheme();
   }
 
   function deleteItem(e){
@@ -331,11 +455,8 @@ document.addEventListener("DOMContentLoaded", function() {
     let element = e.target.parentElement.parentElement.parentElement;
     if(element.classList.contains("theme-item")){
       var id = element.dataset.id;
-      console.log("tr " + element);
     }else{
-      console.log("td" + element);
       element = element.parentElement
-      console.log("tr " + element);
       var id = element.dataset.id;
     }
     list.removeChild(element);
