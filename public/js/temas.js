@@ -209,8 +209,7 @@ document.addEventListener("DOMContentLoaded", function() {
     }
     navbarBrand.style.color = mTColor
     menuText.forEach((element) => element.style.color = mTColor);
-    navbarToggler.style.color = mTColor;
-    togglerIcon.style.color = mTColor;
+    navbarToggler.style.backgroundColor = "#FFFFFF";
     menuBg.style.backgroundColor = mBgColor;
     headerText.style.color = hTColor;
     headerBg.style.backgroundColor = hBgColor;
