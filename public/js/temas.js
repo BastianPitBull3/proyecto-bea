@@ -14,18 +14,19 @@ document.addEventListener("DOMContentLoaded", function() {
   const table = document.querySelector(".table");
   const contentElement = document.querySelector(".content");
 
-  const colorSelectors = {
+  const colorSelectors = document.getElementById("color-menu-text") ? {
     menuTColorSel: document.getElementById("color-menu-text"),
     menuBgColorSel: document.getElementById("color-menu-bg"),
     headerTColorSel: document.getElementById("color-header-text"),
     headerBgColorSel: document.getElementById("color-header-bg"),
     contentTColorSel: document.getElementById("color-content-text"),
     contentBgColorSel: document.getElementById("color-content-bg")
-  }
+  } : null;
 
   var menuTColor, menuBgColor, headerTColor, headerBgColor, contentTColor, contentBgColor;
 
   var customTheme = null;
+  var noItemsMessage = document.querySelector(".no-items-message");
 
   const svThemeBtn = document.getElementById("save-theme-btn");
   const themeName = document.getElementById("theme-name");
@@ -34,6 +35,8 @@ document.addEventListener("DOMContentLoaded", function() {
   var applyBtns, editBtns, deleteBtns;
 
   var saving = false;
+  var editing = false;
+  var editingTheme = null;
   var deleting = false;
   
   // Setting light or dark mode if colors have not been modified
@@ -48,16 +51,20 @@ document.addEventListener("DOMContentLoaded", function() {
     setCustomTheme(0);
   }
 
-  themeSwitch();
-  setColorSelectors();
-  changeColor();
-  saveTheme();
-  showList();
+  if(colorSelectors){
+    changeColor();
+    themeSwitch();
+    setColorSelectors();
+    saveTheme();
+    showList();
+  }
+  
 
   /*** SWITCHING THROUGH DARK & LIGHT THEMES ***/
   function themeSwitch() {
-    // When light/dark mode switch clicked
-    checkbox.addEventListener("change", function() {
+    if(checkbox){
+      // When light/dark mode switch clicked
+      checkbox.addEventListener("change", function() {
       if (checkbox.checked) {
         setDarkTheme();
         localStorage.setItem("initialTheme", "dark");
@@ -68,6 +75,7 @@ document.addEventListener("DOMContentLoaded", function() {
       // Updating color selectors values
       setColorSelectors();
     });
+    }
   }
 
   function setTableColors(tableColor, tableBg, borderColor){
@@ -78,7 +86,8 @@ document.addEventListener("DOMContentLoaded", function() {
   
   /*** SETTING DARK THEME ***/
   function setDarkTheme(){
-    navbarBrand.style.color = "#FFFFFF";
+    setColors("#FFFFFF", "#2B3035", "#005a9c", "rgb(33,37,41)", "#FFFFFF", "rgb(33,37,41)");
+    /* navbarBrand.style.color = "#FFFFFF";
     menuText.forEach((element) => element.style.color = "#FFFFFF");
     navbarToggler.style.color = "#FFFFFF";
     togglerIcon.style.color = "#FFFFFF";
@@ -89,12 +98,13 @@ document.addEventListener("DOMContentLoaded", function() {
     headerBg.style.backgroundColor = "rgb(33,37,41)";
     document.body.style.backgroundColor = "rgb(33,37,41)";
     setTableColors("#FFFFFF", "rgb(33,37,41)", "rgb(73,80,87)");
-    content.forEach((element) => element.style.color = "#FFFFFF");
+    content.forEach((element) => element.style.color = "#FFFFFF"); */
   }
 
   /*** SETTING LIGHT THEME ***/
   function setLightTheme(){
-    navbarBrand.style.color = "#000000";
+    setColors("#000000", "#F8F9FA", "#005a9c", "#FFFFFF", "#000000", "#FFFFFF")
+    /* navbarBrand.style.color = "#000000";
     menuText.forEach((element) => element.style.color = "#000000");
     navbarToggler.style.color = "#2B3035";
     togglerIcon.style.color = "#2B3035";
@@ -105,7 +115,7 @@ document.addEventListener("DOMContentLoaded", function() {
     headerBg.style.backgroundColor = "#FFFFFF";
     document.body.style.backgroundColor = "#FFFFFF";
     setTableColors("#000000", "#FFFFFF", "#DEE2E6");
-    content.forEach((element) => element.style.color = "#000000");
+    content.forEach((element) => element.style.color = "#000000"); */
   }
 
   function setCustomThemeProp(property){
@@ -120,15 +130,25 @@ document.addEventListener("DOMContentLoaded", function() {
         hBgColor = colorSelectors.headerBgColorSel.value;
         cTColor = colorSelectors.contentTColorSel.value;
         cBgColor = colorSelectors.contentBgColorSel.value;
-        createCustomTheme(mTColor, mBgColor, hTColor, hBgColor, cTColor, cBgColor);
+        customTheme = createCustomTheme(undefined, undefined, mTColor, mBgColor, hTColor, hBgColor, cTColor, cBgColor);
       }
     }
     localStorage.setItem("customTheme", JSON.stringify(customTheme));
-    console.log("custom theme has changed");
   }
 
-  function createCustomTheme(mTColor, mBgColor, hTColor, hBgColor, cTColor, cBgColor){
-    return {
+  function createCustomTheme(id, name, mTColor, mBgColor, hTColor, hBgColor, cTColor, cBgColor){
+    if(id === undefined){
+      return {
+        menuTColor: mTColor,
+        menuBgColor: mBgColor,
+        headerTColor: hTColor,
+        headerBgColor: hBgColor,
+        contentTColor: cTColor,
+        contentBgColor: cBgColor
+      }
+    }else return{
+      id: id,
+      name: name,
       menuTColor: mTColor,
       menuBgColor: mBgColor,
       headerTColor: hTColor,
@@ -140,64 +160,65 @@ document.addEventListener("DOMContentLoaded", function() {
 
   function setCustomTheme(themeId){
     if(themeId != 0){
-      console.log("Aplicar tema");
       let themes = getLocalStorage();
       let theme = themes.filter(theme => theme.id === themeId)[0];
-      /* localStorage.setItem("customTheme", JSON.stringify(theme)); */
-      console.log(theme);
       if(theme){
         let mTColor, mBgColor, hTColor, hBgColor, cTColor, cBgColor;
         mTColor = theme.menuTColor;
         mBgColor = theme.menuBgColor;
-        hTColor = theme.headerBgColor;
+        hTColor = theme.headerTColor;
         hBgColor = theme.headerBgColor;
         cTColor = theme.contentTColor;
         cBgColor = theme.contentBgColor;
         setColors(mTColor, mBgColor, hTColor, hBgColor, cTColor, cBgColor);
-        let customTheme = createCustomTheme(mTColor, mBgColor, hTColor, hBgColor, cTColor, cBgColor);
+        let customTheme = createCustomTheme(undefined, undefined, mTColor, mBgColor, hTColor, hBgColor, cTColor, cBgColor);
         localStorage.setItem("customTheme", JSON.stringify(customTheme));
         setColorSelectors();
       }
     }else{
       customTheme = JSON.parse(localStorage.getItem("customTheme"));
 
-      setColors
-      (
-        customTheme.menuTColor, 
-        customTheme.menuBgColor, 
-        customTheme.headerTColor,
-        customTheme.headerBgColor,
-        customTheme.contentTColor,
-        customTheme.headerBgColor
-      );
-      
-      /* navbarBrand.style.color = customTheme.menuTColor;
-      menuText.forEach((element) => element.style.color = customTheme.menuTColor);
-      navbarToggler.style.color = customTheme.menuTColor;
-      togglerIcon.style.color = customTheme.menuTColor;
-      menuBg.style.backgroundColor = customTheme.menuBgColor;
-      headerText.style.color = customTheme.headerTColor;
-      headerBg.style.backgroundColor = customTheme.headerBgColor;
-      content.forEach((element) => element.style.color = customTheme.contentTColor);
-      table.style.setProperty('--bs-table-color', customTheme.contentBgColor);
-      document.body.style.backgroundColor = customTheme.contentBgColor;
-      setTableColors(customTheme.contentTColor, customTheme.contentBgColor, "#DEE2E6"); */
+      if(customTheme){
+        setColors
+        (
+          customTheme.menuTColor, 
+          customTheme.menuBgColor, 
+          customTheme.headerTColor,
+          customTheme.headerBgColor,
+          customTheme.contentTColor,
+          customTheme.contentBgColor
+        );
+      }
     }
     localStorage.setItem("initialTheme", "customTheme");
   }
 
   function setColors(mTColor, mBgColor, hTColor, hBgColor, cTColor, cBgColor){
-      navbarBrand.style.color = mTColor
-      menuText.forEach((element) => element.style.color = mTColor);
-      navbarToggler.style.color = mTColor;
-      togglerIcon.style.color = mTColor;
-      menuBg.style.backgroundColor = mBgColor;
-      headerText.style.color = hTColor;
-      headerBg.style.backgroundColor = hBgColor;
-      content.forEach((element) => element.style.color = cTColor);
-      table.style.setProperty('--bs-table-color', cBgColor);
-      document.body.style.backgroundColor = cBgColor;
-      setTableColors(cTColor, cBgColor, "#DEE2E6");
+    var tableColor;
+    var noItemsMessageColor;
+
+    if(themeName){
+      themeName.value = "";
+    }
+    if(!initialTheme === "dark"){
+      tableColor = "#DEE2E6";
+      noItemsMessageColor = "#EEEEEE";
+    }else {
+      tableColor = "rgb(73,80,87)";
+      noItemsMessageColor = "#CCCCCC";
+    }
+    navbarBrand.style.color = mTColor
+    menuText.forEach((element) => element.style.color = mTColor);
+    navbarToggler.style.color = mTColor;
+    togglerIcon.style.color = mTColor;
+    menuBg.style.backgroundColor = mBgColor;
+    headerText.style.color = hTColor;
+    headerBg.style.backgroundColor = hBgColor;
+    content.forEach((element) => element.style.color = cTColor);
+    table.style.setProperty('--bs-table-color', cBgColor);
+    document.body.style.backgroundColor = cBgColor;
+    setTableColors(cTColor, cBgColor, tableColor);
+    noItemsMessage.style.backgroundColor = noItemsMessageColor;
   }
 
   /*** SETTING THE VALUES FOR COLOR SELECTORS ***/
@@ -290,28 +311,44 @@ document.addEventListener("DOMContentLoaded", function() {
       saving = true;
       // Creating a new theme
       const name = themeName.value;
+      themeName.value  = "";
       const id = new Date().getTime().toString();
-      if(name != ""/* && !editFlag */){
-          createListItem(id, name, menuTColor, menuBgColor, headerTColor, headerBgColor, contentTColor, contentBgColor);
-          // Display alert
-          window.alert("tema añadido");
-          // Show container
-          /* container.classList.add("show-container"); */
-          // Add to local storage
-          addToLocalStorage(id, name, menuTColor, menuBgColor, headerTColor, headerBgColor, contentTColor, contentBgColor);
-          showList();
-          saving = false;
-          // Set back to default
-          /* setBackToDefault(); */
-      }else if(value && editFlag){
-          editElement.innerHTML = value;
-          displayAlert("value changed", "success");
-          //edit local storage
-          editLocalStorage(editID, value);
-          setBackToDefault();
+      var theme = createListItem(id, name, menuTColor, menuBgColor, headerTColor, headerBgColor, contentTColor, contentBgColor);
+      if(name != "" && !editing){
+        list.appendChild(theme);
+        // Display alert
+        window.alert("tema añadido");
+        // Add to local storage
+        addToLocalStorage(id, name, menuTColor, menuBgColor, headerTColor, headerBgColor, contentTColor, contentBgColor);
+        showList();
+        // Set back to default
+        /* setBackToDefault(); */
+      }else if(name && editing){
+        let parent = editingTheme.parentElement;
+        let mTColor, mBgColor, hTColor, hBgColor, cTColor, cBgColor;
+        parent.replaceChild(theme, editingTheme);
+        mTColor = menuTColor;
+        mBgColor = menuBgColor;
+        hTColor = headerTColor;
+        hBgColor = headerBgColor;
+        cTColor = contentTColor;
+        cBgColor = contentBgColor;
+        let customTheme = createCustomTheme(theme.dataset.id,
+                                            theme.dataset.name,
+                                            mTColor, 
+                                            mBgColor, 
+                                            hTColor,
+                                            hBgColor, 
+                                            cTColor, 
+                                            cBgColor);
+        replaceInLocalStorage(editingTheme.dataset.id, customTheme);
+        localStorage.setItem("customTheme", JSON.stringify(customTheme));
+        editing = false;
+        window.alert("cambios guardados con éxito");
       }else{
-          displayAlert("please enter value", "danger");
+        window.alert("please enter value", "danger");
       }
+      saving = false;
     });
   }
 
@@ -319,10 +356,14 @@ document.addEventListener("DOMContentLoaded", function() {
     const element = document.createElement("tr");
     //add class
     element.classList.add("theme-item");
-    //add id
-    const attr = document.createAttribute("data-id");
-    attr.value = id;
-    element.setAttributeNode(attr);
+    //add id and name
+    const attrId = document.createAttribute("data-id");
+    const attrName = document.createAttribute("data-name");
+    attrId.value = id;
+    attrName.value = name;
+    element.setAttributeNode(attrId);
+    element.setAttributeNode(attrName);
+    //Creating element's HTML structure
     element.innerHTML = `
     <td class="td-themes">
       <p class="title">${name}</p>
@@ -351,8 +392,7 @@ document.addEventListener("DOMContentLoaded", function() {
       </div>
     </td>
     `;
-    // Append child
-    list.appendChild(element);
+    return element;
   }
   
   function addToLocalStorage(id, name, menuTColor, menuBgColor, headerTColor, headerBgColor, contentTColor, contentBgColor){
@@ -375,30 +415,49 @@ document.addEventListener("DOMContentLoaded", function() {
     });
   }
 
+  function replaceInLocalStorage(editingId, newTheme){
+    // Obtén el array del localStorage
+    var themes = getLocalStorage();
+    console.log("themes: " + themes);
+
+    // Encuentra el índice del objeto que quieres reemplazar
+    var index = themes.findIndex(theme => theme.id === editingId);
+    console.log("index: " + index);
+    // Si el objeto existe en el array
+    if (index !== -1) {
+      // Reemplaza el objeto antiguo por el nuevo
+      console.log(`replacing theme ${themes[index]} with ${newTheme}`);
+      themes[index] = newTheme;
+      
+      // Guarda el array actualizado en el localStorage
+      localStorage.setItem('themes', JSON.stringify(themes));
+    }
+  }
+
   function showList(){
-    let noItemsMessage = document.querySelector(".no-items-message");
     const clearThemesBtn = document.querySelector(".btn-clear-themes");
     let themes = JSON.parse(localStorage.getItem("themes"))
 
     if(themes && themes.length > 0){
       if(!saving && !deleting){
         console.log("lista contiene elementos");
-        themes.forEach(function(item) {
-          for (let property in item) {
-            if (item.hasOwnProperty(property)) {
+        themes.forEach((theme) => {
+          for (let property in theme) {
+            if (theme.hasOwnProperty(property)) {
         
               // Saving the value of each property
-              var id = item.id;
-              var name = item.name;
-              var menuTColor = item.menuTColor;
-              var menuBgColor = item.menuBgColor;
-              var headerTColor = item.headerTColor;
-              var headerBgColor = item.headerBgColor;
-              var contentTColor = item.contentTColor;
-              var contentBgColor = item.contentBgColor;
+              var id = theme.id;
+              var name = theme.name;
+              var menuTColor = theme.menuTColor;
+              var menuBgColor = theme.menuBgColor;
+              var headerTColor = theme.headerTColor;
+              var headerBgColor = theme.headerBgColor;
+              var contentTColor = theme.contentTColor;
+              var contentBgColor = theme.contentBgColor;
             }
           }
-          createListItem(id, name, menuTColor, menuBgColor, headerTColor, headerBgColor, contentTColor, contentBgColor);
+          let item = createListItem(id, name, menuTColor, menuBgColor, headerTColor, headerBgColor, contentTColor, contentBgColor);
+          list.appendChild(item);
         });
       }
 
@@ -446,7 +505,22 @@ document.addEventListener("DOMContentLoaded", function() {
   }
 
   function editItem(e){
-    customTheme();
+    editing = true;
+    var theme
+    let target  = e.target;
+
+    if(target.classList.contains("fas")){
+      theme = target.parentElement.parentElement.parentElement.parentElement;
+    }else{
+      theme = target.parentElement.parentElement.parentElement;
+    }
+    editingTheme = theme;
+    let id = editingTheme.dataset.id;
+    setCustomTheme(id);
+
+    themeName.value = editingTheme.dataset.name
+    themeName.focus();
+    themeName.select();
   }
 
   function deleteItem(e){
